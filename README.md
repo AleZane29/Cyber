@@ -23,6 +23,7 @@
     - **jump *nomeFunzione →*** per chiamare quella funzione
     - **disas *nomeFunzione →*** per vedere cosa fa la funzione (a volte può essere necessario inserire prima un breakpoint)
     - **x/s *indirizzoMemVariabile →*** stampa valore della variabile
+    - **print $eax →** stampa valore registro
     - **info registers** → permette di vedere i registri del file
 - **checksec *nomeFile →*** per verificare se RELRO è FULL quindi file protetto da scritture sullo stack
     
@@ -37,6 +38,7 @@
 
 - **Evitare la chiamata di una funzione** → cliccare su di essa, e cambiare il suo esadecimale con tutti 90 (edit → patch program → change byte. Per salvare: edit → patch program → apply to input files)
 - **Leggere cella di memoria di una funzione** → Andare su finestra exports
+- **Patch di un rand()** → evitare la chiamata di timer() e srand() che setta il seed del random, così facendo la risposta corretta è sempre 0
 
 ### PWN
 
@@ -121,4 +123,30 @@ RBX: 0x0
 RCX: 0x400760 (<__libc_csu_init>:       push   r15)
 RDX: 0x7fffffffdf98 --> 0x7fffffffe245 ("SHELL=/bin/bash")
 RSI: 0x7fffffffdf88 --> 0x7fffffffe1f6 ("/mnt/c/users/aless/Downloads/Challenges/challenge rop/Challenges/1_split/split")
+```
+
+## Radare2
+
+[https://radareorg.github.io/blog/posts/using-radare2/](https://radareorg.github.io/blog/posts/using-radare2/)
+
+### Hexadecimal code
+
+[https://faydoc.tripod.com/cpu/jle.htm](https://faydoc.tripod.com/cpu/jle.htm)
+
+## CrossTheBridge
+
+```diff
+2c2
+< CrossTheBridge:     formato del file elf64-x86-64
+---
+> CrossTheBridge_patched:     formato del file elf64-x86-64
+711c711
+<     1ae8:	75 74                	jne    1b5e <is_someone_cheating+0xa0>
+---
+>     1ae8:	eb 74                	jmp    1b5e <is_someone_cheating+0xa0>
+766c766
+<     1bba:	0f b6 44 05 f5       	movzbl -0xb(%rbp,%rax,1),%eax
+---
+>     1bba:	b8 4c 00 00 00       	mov    $0x4c,%eax
+
 ```
